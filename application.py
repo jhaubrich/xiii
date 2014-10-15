@@ -1,4 +1,6 @@
 import flask
+from flask import Response, request
+from flask import render_template, jsonify, json
  
 application = flask.Flask(__name__)
 
@@ -8,7 +10,7 @@ application.debug=True
  
 @application.route('/')
 def hello_world():
-    return "Hello world!"
+    return render_template('index.tmpl')
  
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
