@@ -1,0 +1,32 @@
+{% extends "base.tmpl" %}
+
+{% block head %} {{ super() }}
+  <style>
+   #content {
+     padding: 4em;
+   }
+  </style>
+{% endblock head %}
+
+{% block content %}
+  <div id="dropbox_content"> </div>
+  <div id="data">
+    {% for member in members %}
+      <div class="panel">
+      <h3> {{ member.Name }} <small> {{member.guild_profession.name}}</small></h3>
+      
+      <p> {{member.Comments}} </p>
+      <p> Other professions: </p>
+      <ul>
+	{% for profession, value in member.other_professions.iteritems() %}
+	  <li>{{profession|e}} - {{value|e}}</li>
+	  {% endfor %}
+      </ul>
+      </div>
+      {% endfor %}
+
+  </div>
+{% endblock content %}
+
+{% block scripts %}
+{% endblock scripts %}

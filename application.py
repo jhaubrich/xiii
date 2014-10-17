@@ -1,6 +1,10 @@
+import json
+
+import requests
+
 import flask
 from flask import Response, request
-from flask import render_template, jsonify, json
+from flask import render_template, jsonify
  
 application = flask.Flask(__name__)
 
@@ -12,5 +16,53 @@ application.debug=True
 def hello_world():
     return render_template('index.tmpl')
  
+
+@application.route('/professions/json/')
+def profession_json():
+    return jsonify(google_formatted_json())
+
+def google_formatted_json():
+    r = requests.get("https://docs.google.com/spreadsheets/d/1dwshW3o1kXcFC4gvCUXi9p6NmxoDLL2IvOkKu9acHLE/gviz/tq?tq=select+*")
+    # strip the jsonp callback
+    google_jsonp = dict(start='google.visualization.Query.setResponse(', end=');')
+    google_json = r.text
+    google_json = google_json.replace(google_jsonp['start'], '')
+    google_json = google_json.replace(google_jsonp['end'], '')
+    table = json.loads(google_json)
+
+    # create a list of dict(name, guild_profession, [other_professions], comments)
+    cols = table['table']['cols']
+    rows = table['table']['rows']
+
+    data = []
+    for row in rows:
+        item = {}
+        item['other_professions'] = {}
+        for col in cols:
+            i = cols.index(col)
+            column_label = col['label']
+            cell = row['c'][i]  # v=value (f=formatted)
+            if cell and column_label:
+                if cell['v'] < 0:
+                    item['guild_profession'] = {'name': column_label, 'value': abs(cell['v'])}
+                elif column_label != "Comments" and column_label != 'Name':
+                    item['other_professions'][column_label] = cell['v']
+                else:
+                    item[column_label] = cell['v']
+
+        data.append(item)
+        
+    table['by_name'] = data
+    return table
+    
+
+@application.route('/professions/<sort>')
+@application.route('/professions/')
+def professions(sort="by_name"):
+    table = google_formatted_json()
+    if sort == "by_name":
+        return render_template('professions.tmpl', members=table['by_name'])
+        
+
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
