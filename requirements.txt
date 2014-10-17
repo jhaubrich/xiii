@@ -1,2 +1,4 @@
 flask==0.9
 requests==2.4.3
+dropbox==2.2.0
+markdown==2.5

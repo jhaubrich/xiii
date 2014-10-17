@@ -2,14 +2,11 @@
 
 {% block head %} {{ super() }}
   <style>
-   #content {
-     padding: 4em;
-   }
   </style>
 {% endblock head %}
 
 {% block content %}
-  <div id="dropbox_content"> </div>
+  <div id="dropbox_content"> {{ content_md }}</div>
   <div id="data">
     {% for member in members %}
       <div class="panel">

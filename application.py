@@ -1,10 +1,12 @@
 import json
 
 import requests
+import markdown
 
 import flask
 from flask import Response, request
 from flask import render_template, jsonify
+from flask import Markup
  
 application = flask.Flask(__name__)
 
@@ -12,9 +14,22 @@ application = flask.Flask(__name__)
 #Make sure to remove this line before deploying to production.
 application.debug=True
  
+def render_dropbox_md(url):
+    md = requests.get(url)
+    return Markup(markdown.markdown(md.text))
+    
 @application.route('/')
 def hello_world():
-    return render_template('index.tmpl')
+    content_md = render_dropbox_md("https://www.dropbox.com/s/swq7kavg920tvet/index.md?dl=1")
+    sidebar_md = render_dropbox_md("https://www.dropbox.com/s/91p6lqk8rszb7h3/sidebar.md?dl=1")
+    return render_template('index.tmpl', **locals())
+
+
+@application.route('/faq')
+def faq():
+   sidebar_md = render_dropbox_md("https://www.dropbox.com/s/91p6lqk8rszb7h3/sidebar.md?dl=1")
+   content_md = render_dropbox_md("https://www.dropbox.com/s/4r22zrd9q6wge0q/faq.md?dl=1")
+   return render_template('index.tmpl', **locals()) 
  
 
 @application.route('/professions/json/')
@@ -59,9 +74,12 @@ def google_formatted_json():
 @application.route('/professions/<sort>')
 @application.route('/professions/')
 def professions(sort="by_name"):
+    sidebar_md = render_dropbox_md("https://www.dropbox.com/s/91p6lqk8rszb7h3/sidebar.md?dl=1")
+    content_md = render_dropbox_md("https://www.dropbox.com/s/mgwh0fxz7nk10sg/professions.md?dl=1")
+
     table = google_formatted_json()
     if sort == "by_name":
-        return render_template('professions.tmpl', members=table['by_name'])
+        return render_template('professions.tmpl', members=table['by_name'], content_md=content_md, sidebar_md=sidebar_md)
         
 
 if __name__ == '__main__':
