@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="static/favicon.ico">
     
-    <title>XIII {% block title %}{% endblock %}</title>
+    <title>The Inoch XIII {% block title %}{% endblock %}</title>
 
     <link rel="stylesheet" href="/static/lib/foundation/css/normalize.css">
     <link rel="stylesheet" href="/static/lib/foundation/css/foundation.css">
@@ -24,7 +24,7 @@
     <nav class="top-bar" data-topbar>
       <ul class="title-area">
         <li class="name">
-          <h1><a href="">XIII</a></h1>
+          <h1><a href="/">XIII</a></h1>
         </li>
         <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
       </ul>
@@ -46,8 +46,10 @@
       </section>
     </nav>
 
-
-    <div id="content">{% block content %}{% endblock %}</div>
+    <div class="row">
+    <div id="content" class="medium-10 columns">{% block content %}{% endblock %}</div>
+    <div id="sidebar" class="medium-2 columns"></div>
+    </div>
 
     <script src="/static/lib/handlebars.js"></script>
     <script src="/static/lib/foundation/js/vendor/jquery.js"></script>
