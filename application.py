@@ -84,5 +84,20 @@ def professions(sort="by_name"):
         return render_template('professions.tmpl', members=table['by_name'], content_md=content_md, sidebar_md=sidebar_md)
         
 
+@application.route('/mumble')
+def mumble():
+    content_md = """
+    ## Mumble
+    Get the client at [mumble.com](http://www.mumble.com/mumble-download.php).
+
+    #### Server
+    homebrew.mumble.com
+    #### Port
+    9812
+    """
+
+    return render_template('index.tmpl' content_md=Markup(markdown.markdown(content)))
+
+
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
