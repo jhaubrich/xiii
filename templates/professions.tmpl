@@ -13,7 +13,7 @@
       <h3> {{ member.Name }} <small> {{member.guild_profession.name}}</small></h3>
       
       <p> {{member.Comments}} </p>
-      <p> Other professions: </p>
+
       <ul>
 	{% for profession, value in member.other_professions.iteritems() %}
 	  <li>{{profession|e}} - {{value|e}}</li>

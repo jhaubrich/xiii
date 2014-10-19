@@ -53,6 +53,8 @@ def google_formatted_json():
     for row in rows:
         item = {}
         item['other_professions'] = {}
+        item['guild_profession'] = ''
+
         for col in cols:
             i = cols.index(col)
             column_label = col['label']
@@ -61,7 +63,7 @@ def google_formatted_json():
                 if cell['v'] < 0:
                     item['guild_profession'] = {'name': column_label, 'value': abs(cell['v'])}
                 elif column_label != "Comments" and column_label != 'Name':
-                    item['other_professions'][column_label] = cell['v']
+                    item['other_professions'][column_label] = "{:,}".format(int(cell['v']))
                 else:
                     item[column_label] = cell['v']
 
