@@ -86,17 +86,16 @@ def professions(sort="by_name"):
 
 @application.route('/mumble')
 def mumble():
-    content_md = """
-    ## Mumble
-    Get the client at [mumble.com](http://www.mumble.com/mumble-download.php).
+    content = """## Mumble
+Get the client at [mumble.com](http://www.mumble.com/mumble-download.php).
 
-    #### Server
-    homebrew.mumble.com
-    #### Port
-    9812
+#### Server
+homebrew.mumble.com
+#### Port
+9812
     """
 
-    return render_template('index.tmpl' content_md=Markup(markdown.markdown(content)))
+    return render_template('index.tmpl', content_md=Markup(markdown.markdown(content)))
 
 
 if __name__ == '__main__':
