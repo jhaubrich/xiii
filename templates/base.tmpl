@@ -21,6 +21,7 @@
      #sidebar {
        padding-top: 4em;
      }
+     /* #mumble-modal ul{list-style-type:none;} */
     </style>
   {% endblock head %}
 
@@ -41,6 +42,7 @@
         <!-- Right Nav Section -->
         <ul class="right">
 	  <li><a href="/professions">Professions</a></li>
+	  <li><a href="#" data-reveal-id="mumble-modal">Voice</a></li>
 	  <li><a href="/faq">FAQ</a></li>
 	  <!-- <li><a href="#">Properties</a></li>
 	  <li><a href="#">Events</a></li> -->
@@ -55,17 +57,63 @@
       </section>
     </nav>
 
+    
     <div class="row">
-    <div id="content" class="medium-9 columns">{% block content %}{% endblock %}</div>
-    <div id="sidebar" class="medium-3 columns">{{ sidebar_md }}</div>
+      <div id="content" class="medium-9 columns">{% block content %}{% endblock %}</div>
+      <div id="sidebar" class="medium-3 columns">{{ sidebar_md }}</div>
     </div>
+    
+    <div id="mumbleTarget"></div> <!-- handlebars -->
+    
 
     <script src="/static/lib/handlebars.js"></script>
     <script src="/static/lib/foundation/js/vendor/jquery.js"></script>
     <script src="/static/lib/foundation/js/foundation.min.js"></script>
-
+    
+    
+    <script id="mumbleTemplate" type="text/x-handlebars-template"> {% raw %}
+      <div id="mumble-modal" class="reveal-modal" data-reveal><div class="modal-contents">
+	<a class="close-reveal-modal">&#215;</a>
+	<h3>Voice <small>homebrew.mumble.com:9812</small></h3>
+	<ul> {{#each root.channels}}
+	  <li> {{name}}
+	    <ul> {{#each users}}
+	      <li> {{name}}</li>
+	         {{/each}}
+	    </ul>
+	  </li>
+	     {{/each}}
+	</ul>
+        <a href="{{x_connecturl}}" class="button" style="float: left;">Connect</a><br />
+	<a href="http://www.mumble.com/mumble-download.php" style="float: right;">Install Mumble...</a>
+      </div></div>
+    </script> {% endraw %} 
+    
     <script>
      $(document).foundation()
+     var mumbleTemplate = Handlebars.compile(
+       $('#mumbleTemplate').html());
+
+     update_mumble = function(){
+       $.ajax({
+	 url: "/mumble.json",
+	 dataType: "json",
+	 timeout: 30000, // 5min
+	 success: function(mumble_status){
+	   $('#mumbleTarget').html(mumbleTemplate(mumble_status));
+	   console.log(mumble_status);
+	   $(document).foundation();
+
+	   // update modal work around
+	   $('#mumble-modal .modal-contents').html($('#mumble-modal .modal-contents').html())
+	   
+	} 
+       });
+     };
+
+     update_mumble();
+     setInterval(update_mumble, 10000); // 10sec
+     
     </script>
     {% block scripts %} {% endblock %}
   </body>

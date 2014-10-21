@@ -97,6 +97,12 @@ homebrew.mumble.com
 
     return render_template('index.tmpl', content_md=Markup(markdown.markdown(content)))
 
+    
+@application.route('/mumble.json')
+def local_mumble_json():
+    mumble_json = requests.get("https://api.mumble.com/mumble/cvp.php?token=LSG-8A-A8183DEB").text
+    return Response(mumble_json, mimetype='application/json')
 
+    
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
