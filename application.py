@@ -47,25 +47,25 @@ def local_mumble_json():
     return Response(mumble_json, mimetype='application/json')
 
 
-
-@application.route('/professions.json')
-def profession_json():
-    return jsonify(format_google_json())
-
-
-def format_google_json():
-    r = requests.get("https://docs.google.com/spreadsheets/d/1dwshW3o1kXcFC4gvCUXi9p6NmxoDLL2IvOkKu9acHLE/gviz/tq?tq=select+*")
+def get_google_json(speadsheet_url):
+    r = requests.get(speadsheet_url)
     # strip the jsonp callback
     google_jsonp = dict(start='google.visualization.Query.setResponse(', end=');')
     google_json = r.text
     google_json = google_json.replace(google_jsonp['start'], '')
     google_json = google_json.replace(google_jsonp['end'], '')
+    # remove bad date objects and unicode escape chars
+    google_json = google_json.replace('\\u0022', '').replace('\\u00', '').replace('new Date(', '"').replace('),"', '","')
     table = json.loads(google_json)
+    return table
+    
 
+@application.route('/professions.json')
+def profession_json():
+    table = get_google_json("https://docs.google.com/spreadsheets/d/1dwshW3o1kXcFC4gvCUXi9p6NmxoDLL2IvOkKu9acHLE/gviz/tq?tq=select+*")
     # create a list of dict(name, guild_profession, [other_professions], comments)
     cols = table['table']['cols']
     rows = table['table']['rows']
-
     data = []
     for row in rows:
         item = {}
@@ -87,8 +87,16 @@ def format_google_json():
         data.append(item)
         
     table['by_member'] = data
-    return table
-    
+ 
+    return jsonify(table)
 
+@application.route('/assets.json')
+def assets_json():
+    treasurey_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=0")
+    # resources_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=2041050771")
+    return jsonify(dict(gold=treasurey_table['table']['rows'][0]['c'][2]['f'].replace('.', ' '),
+                        charcoal=0, crystal=0, rocksalt=0))
+
+    
 if __name__ == '__main__':
     application.run(host='0.0.0.0')

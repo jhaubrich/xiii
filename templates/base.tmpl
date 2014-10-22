@@ -49,20 +49,17 @@
       </ul>
 
       <section class="top-bar-section">
-        <!-- Right Nav Section -->
-        <ul class="right">
-	  <li><a href="/professions">Professions</a></li>
-	  <li><a href="/faq">FAQ</a></li>
-	  <!-- <li><a href="#">Properties</a></li>
-	  <li><a href="#">Events</a></li> -->
-        </ul>
 
         <!-- Left Nav Section -->
-        <!--
         <ul class="left">
-        <li><a href="#">Left Nav Button</a></li>
+	  <li><a href="/professions">Professions</a></li>
+	  <li><a href="/faq">FAQ</a></li>
         </ul>
-        -->
+	
+        <!-- Right Nav Section -->
+	  <ul class="right">
+	    <div id="assetsTarget">
+	  </ul>
       </section>
     </nav>
 
@@ -99,10 +96,30 @@
 	</ul>
         <a href="{{x_connecturl}}" class="button" style="margin-bottom: 0;">Connect</a><br />
     </script> {% endraw %} 
+
+    <script id="assetTemplate" type="text/x-handlebars-template"> {% raw %}
+      <!-- topbar right nav -->
+	<li><a href="https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw">{{gold}}</a></li>
+    </script> {% endraw %}
     
     <script>
      $(document).foundation()
-     
+
+     var assetTemplate = Handlebars.compile(
+       $('#assetTemplate').html());
+     update_assets = function(){
+       $.ajax({
+	 url:"/assets.json",
+	 dataType: "json",
+	 timeout: 30000,
+	 success: function(d){
+	   $('#assetsTarget').html(assetTemplate(d));
+	   /* console.log(d) */
+	   $(document).foundation();
+	 }
+       });
+     }();
+
      var mumbleTemplate = Handlebars.compile(
        $('#mumbleTemplate').html());
      update_mumble = function(){
@@ -112,7 +129,7 @@
 	 timeout: 30000, // 5min
 	 success: function(mumble_status){
 	   $('#mumbleTarget').html(mumbleTemplate(mumble_status));
-	   console.log(mumble_status);
+	   // console.log(mumble_status);
 	   $(document).foundation();
 	   
 	} 
