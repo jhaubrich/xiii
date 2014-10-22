@@ -7,23 +7,46 @@
 
 {% block content %}
   <div id="dropbox_content"> {{ content_md }}</div>
-  <div id="data">
-    {% for member in members %}
-      <div class="panel">
-      <h3> {{ member.Name }} <small> {{member.guild_profession.name}}</small></h3>
+  <div id="dataTarget"></div>
+
+  <script id="dataTemplate" type="text/x-handlebars-template"> {% raw %}
+    {{#each .}}
+    <div class="panel">
+      <h3> {{ Name }} <small> {{guild_profession.name}}</small></h3>
       
-      <p> {{member.Comments}} </p>
+      <p> {{Comments}} </p>
 
       <ul>
-	{% for profession, value in member.other_professions.iteritems() %}
-	  <li>{{profession|e}} - {{value|e}}</li>
-	  {% endfor %}
+	{{#each other_professions}}
+	<li>{{@key}} - {{this}}</li>
+	{{/each}}
       </ul>
-      </div>
-      {% endfor %}
+    </div>
+    {{/each}}
+  </div> 
+  </script> {% endraw %}
 
-  </div>
 {% endblock content %}
 
 {% block scripts %}
+  <script>
+   var dataTemplate = Handlebars.compile(
+     $('#dataTemplate').html());
+
+   update_google_professions_speadsheet = function(){
+     $.ajax({
+       url: "/professions.json",
+       dataType: "json",
+       timeout: 30000, // 5min
+       success: function(google_speadsheet){
+	 $('#dataTarget').html(dataTemplate(google_speadsheet['by_member']));
+	 $(document).foundation();
+	 
+       } 
+     });
+   };
+
+   update_google_professions_speadsheet();
+   setInterval(update_google_professions_speadsheet, 60000); // 60sec
+  </script>
 {% endblock scripts %}

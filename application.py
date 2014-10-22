@@ -15,28 +15,45 @@ application = flask.Flask(__name__)
 application.debug=True
  
 def render_dropbox_md(url):
-    md = requests.get(url)
-    return Markup(markdown.markdown(md.text))
+    with open(url) as f:
+        html = Markup(markdown.markdown(f.read()))
+    return html
     
 @application.route('/')
 def hello_world():
-    content_md = render_dropbox_md("https://www.dropbox.com/s/swq7kavg920tvet/index.md?dl=1")
-    sidebar_md = render_dropbox_md("https://www.dropbox.com/s/91p6lqk8rszb7h3/sidebar.md?dl=1")
+    content_md = render_dropbox_md("static/markdown/index.md")
+    sidebar_md = render_dropbox_md("static/markdown/sidebar.md")
     return render_template('index.tmpl', **locals())
 
 
 @application.route('/faq')
 def faq():
-   sidebar_md = render_dropbox_md("https://www.dropbox.com/s/91p6lqk8rszb7h3/sidebar.md?dl=1")
-   content_md = render_dropbox_md("https://www.dropbox.com/s/4r22zrd9q6wge0q/faq.md?dl=1")
+   sidebar_md = render_dropbox_md("static/markdown/sidebar.md")
+   content_md = render_dropbox_md("static/markdown/faq.md")
    return render_template('index.tmpl', **locals()) 
  
 
-@application.route('/professions/json/')
-def profession_json():
-    return jsonify(google_formatted_json())
+@application.route('/professions/')
+def professions(sort="by_name"):
+    sidebar_md = render_dropbox_md("static/markdown/sidebar.md")
+    content_md = render_dropbox_md("static/markdown/professions.md")
 
-def google_formatted_json():
+    return render_template('professions.tmpl', content_md=content_md, sidebar_md=sidebar_md)
+        
+
+@application.route('/mumble.json')
+def local_mumble_json():
+    mumble_json = requests.get("https://api.mumble.com/mumble/cvp.php?token=LSG-8A-A8183DEB").text
+    return Response(mumble_json, mimetype='application/json')
+
+
+
+@application.route('/professions.json')
+def profession_json():
+    return jsonify(format_google_json())
+
+
+def format_google_json():
     r = requests.get("https://docs.google.com/spreadsheets/d/1dwshW3o1kXcFC4gvCUXi9p6NmxoDLL2IvOkKu9acHLE/gviz/tq?tq=select+*")
     # strip the jsonp callback
     google_jsonp = dict(start='google.visualization.Query.setResponse(', end=');')
@@ -69,40 +86,9 @@ def google_formatted_json():
 
         data.append(item)
         
-    table['by_name'] = data
+    table['by_member'] = data
     return table
     
 
-@application.route('/professions/<sort>')
-@application.route('/professions/')
-def professions(sort="by_name"):
-    sidebar_md = render_dropbox_md("https://www.dropbox.com/s/91p6lqk8rszb7h3/sidebar.md?dl=1")
-    content_md = render_dropbox_md("https://www.dropbox.com/s/mgwh0fxz7nk10sg/professions.md?dl=1")
-
-    table = google_formatted_json()
-    if sort == "by_name":
-        return render_template('professions.tmpl', members=table['by_name'], content_md=content_md, sidebar_md=sidebar_md)
-        
-
-@application.route('/mumble')
-def mumble():
-    content = """## Mumble
-Get the client at [mumble.com](http://www.mumble.com/mumble-download.php).
-
-#### Server
-homebrew.mumble.com
-#### Port
-9812
-    """
-
-    return render_template('index.tmpl', content_md=Markup(markdown.markdown(content)))
-
-    
-@application.route('/mumble.json')
-def local_mumble_json():
-    mumble_json = requests.get("https://api.mumble.com/mumble/cvp.php?token=LSG-8A-A8183DEB").text
-    return Response(mumble_json, mimetype='application/json')
-
-    
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
