@@ -146,8 +146,11 @@ def calendar():
     d['entries'] = sorted_entries
     # TODO: check dates within range... today? this weekend?
     d['next_events'] = sorted_entries[:2]
-    
-    return jsonify(d)
+
+    # aws flask version bug
+    # return jsonify(d)
+    date_handler = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) else None
+    return json.dumps(d, default=date_handler)
     
     
 if __name__ == '__main__':
