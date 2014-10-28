@@ -116,26 +116,36 @@ def calendar():
     >>> d['entries'][0]['content'][0]['value']
     u'When: Wed Oct 29, 2014 10am to 11am\xa0\nCDT<br />\n\n\n<br />Event Status: confirmed\n<br />Event Description: test description'
     """
-
+    import datetime
     feed = feedparser.parse('https://www.google.com/calendar/feeds/f0i8n739nted6nehflb0b9hreg%40group.calendar.google.com/public/basic')
 
     d = dict(updated=feed['updated'], entries=[])
     for entry in feed['entries']:
-        content = entry['content'][0]['value'].replace('<br />', '')
-        # content_re = re.compile('When: (?P<when>.*)'
-        #                        'Event Status: (?P<status>.*)'
-        #                        'Event Description: (?P<description>.*).*')
-        # m = content_re.search(content)
+        content = entry['content'][0]['value']
+        try:
+            date_re = re.compile("When: (?P<date>.*) to")
+            m = date_re.search(content)  # Wed Oct 29, 2014 9pm
+            date = datetime.datetime.strptime(m.groupdict()['date'], "%a %b %d, %Y %I%p")
+        except:
+            date = "0"
+        content = content.replace('<br />', '', 1)
+        content = content.replace('When: ', '')
+        content = content.replace('Event Status: confirmed\n<br />', '')
+        content = content.replace('Event Description: ', '')
+        
         
         d['entries'].append(dict(
             title=entry['title'],
             updated=entry['updated'],
             link=entry['link'],
             content=content,
-            # **m.groupdict()      
+            date=date,
         ))
 
-    d['next_event'] = d['entries'][0]
+    sorted_entries = sorted(d['entries'], key=lambda k: k['date'])
+    d['entries'] = sorted_entries
+    # TODO: check dates within range... today? this weekend?
+    d['next_events'] = sorted_entries[:2]
     
     return jsonify(d)
     

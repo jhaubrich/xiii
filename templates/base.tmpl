@@ -33,13 +33,15 @@
        margin-left: 1em;
      }
      .calendarlist h5 {
-       margin-bottom: 0;
+       margin: 0;
      }
      .entryupdated {
        font-size: 0.5em;
+       float:right;
      }
      .entrycontent {
        font-size: .8em;
+       margin-left: .2em;
      }
      .calendarlist {
        font-weight: 200;
@@ -122,12 +124,14 @@
     </script> {% endraw %}
     
     <script id="calendarTemplate" type="text/x-handlebars-template"> {% raw %}
-      <ul class="calendarlist"> {{#each entries}}
+      <ul class="calendarlist"> {{#each next_events}}
+      <div class="panel">
 	<li>
 	  <h5> <a href="{{link}}"> {{title}} </a> </h5>
 	  <div class="entrycontent"> {{{content}}} </div>
 	  <div class="entryupdated"> updated: {{updated}}</div>
 	</li>
+      </div>
 	{{/each}}
       </ul>
     </script> {% endraw %}
