@@ -121,15 +121,16 @@ def calendar():
 
     d = dict(updated=feed['updated'], entries=[])
     for entry in feed['entries']:
-        content = entry['content'][0]['value']
+        content = entry['summary']
         try:
             date_re = re.compile("When: (?P<date>.*) to")
             m = date_re.search(content)  # Wed Oct 29, 2014 9pm
             date = datetime.datetime.strptime(m.groupdict()['date'], "%a %b %d, %Y %I%p")
         except:
-            date = "0"
+            date = 0
         content = content.replace('<br />', '', 1)
         content = content.replace('When: ', '')
+        content = content.replace('Event Status: confirmed', '')
         content = content.replace('Event Status: confirmed\n<br />', '')
         content = content.replace('Event Description: ', '')
         
