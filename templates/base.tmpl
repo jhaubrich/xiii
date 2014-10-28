@@ -32,6 +32,21 @@
        list-style-type: disc;
        margin-left: 1em;
      }
+     .calendarlist h5 {
+       margin-bottom: 0;
+     }
+     .entryupdated {
+       font-size: 0.5em;
+     }
+     .entrycontent {
+       font-size: .8em;
+     }
+     .calendarlist {
+       font-weight: 200;
+       font-size: 1.1em;
+       list-style-type: none;
+       margin-left:0;
+     }
     </style>
   {% endblock head %}
 
@@ -54,6 +69,7 @@
         <ul class="left">
 	  <li><a href="/professions">Professions</a></li>
 	  <li><a href="/faq">FAQ</a></li>
+	  <li><a href="https://www.google.com/calendar/embed?src=f0i8n739nted6nehflb0b9hreg%40group.calendar.google.com">Calendar</a>
         </ul>
 	
         <!-- Right Nav Section -->
@@ -68,6 +84,9 @@
       <div id="content" class="medium-8 columns">{% block content %}{% endblock %}</div>
 
       <div id="sidebar" class="medium-4 columns">
+	<div id="calendar-sidebar">
+	  <div id="calendarTarget"></div> <!-- handlebars -->
+	</div>
 	{{ sidebar_md }}
 	<div id="mumble-sidebar" style="padding-bottom:1em;">
 	  <h3>Voice <small>homebrew.mumble.com:9812</small></h3>
@@ -102,8 +121,36 @@
 	<li><a href="https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw">{{gold}}</a></li>
     </script> {% endraw %}
     
+    <script id="calendarTemplate" type="text/x-handlebars-template"> {% raw %}
+      <ul class="calendarlist"> {{#each entries}}
+	<li>
+	  <h5> <a href="{{link}}"> {{title}} </a> </h5>
+	  <div class="entrycontent"> {{{content}}} </div>
+	  <div class="entryupdated"> updated: {{updated}}</div>
+	</li>
+	{{/each}}
+      </ul>
+    </script> {% endraw %}
+
+    
     <script>
      $(document).foundation()
+
+     var calendarTemplate = Handlebars.compile(
+       $('#calendarTemplate').html());
+     update_assets = function(){
+       $.ajax({
+	 url:"/calendar.json",
+	 dataType: "json",
+	 timeout: 30000,
+	 success: function(d){
+	   $('#calendarTarget').html(calendarTemplate(d));
+	   /* console.log(d) */
+	   $(document).foundation();
+	 }
+       });
+     }();
+
 
      var assetTemplate = Handlebars.compile(
        $('#assetTemplate').html());

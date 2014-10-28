@@ -1,7 +1,9 @@
 import json
+import re
 
 import requests
 import markdown
+import feedparser
 
 import flask
 from flask import Response, request
@@ -97,6 +99,46 @@ def assets_json():
     return jsonify(dict(gold=treasurey_table['table']['rows'][0]['c'][2]['f'].replace('.', ' '),
                         charcoal=0, crystal=0, rocksalt=0))
 
+    
+@application.route('/calendar.json')
+def calendar():
+    """
+    >>> import feedparser
+    >>> d = feedparser.parse('https://www.google.com/calendar/feeds/f0i8n739nted6nehflb0b9hreg%40group.calendar.google.com/public/basic')
+    >>> d['updated']
+    'Tue, 28 Oct 2014 14:59:23 GMT'
+    >>> d['entries'][0]['title']
+    u'Test Event'
+    >>> d['entries'][0]['updated']
+    u'2014-10-28T14:51:40.000Z'
+    >>> d['entries'][0]['link']
+    u'https://www.google.com/calendar/event?eid=dDY4bTM2NDU2bnFtbHFzYjhqYTd1dmU3MDAgZjBpOG43MzludGVkNm5laGZsYjBiOWhyZWdAZw'
+    >>> d['entries'][0]['content'][0]['value']
+    u'When: Wed Oct 29, 2014 10am to 11am\xa0\nCDT<br />\n\n\n<br />Event Status: confirmed\n<br />Event Description: test description'
+    """
+
+    feed = feedparser.parse('https://www.google.com/calendar/feeds/f0i8n739nted6nehflb0b9hreg%40group.calendar.google.com/public/basic')
+
+    d = dict(updated=feed['updated'], entries=[])
+    for entry in feed['entries']:
+        content = entry['content'][0]['value'].replace('<br />', '')
+        # content_re = re.compile('When: (?P<when>.*)'
+        #                        'Event Status: (?P<status>.*)'
+        #                        'Event Description: (?P<description>.*).*')
+        # m = content_re.search(content)
+        
+        d['entries'].append(dict(
+            title=entry['title'],
+            updated=entry['updated'],
+            link=entry['link'],
+            content=content,
+            # **m.groupdict()      
+        ))
+
+    d['next_event'] = d['entries'][0]
+    
+    return jsonify(d)
+    
     
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
