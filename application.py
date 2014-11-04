@@ -41,18 +41,26 @@ def professions(sort="by_name"):
     content_md = render_dropbox_md("static/markdown/professions.md")
 
     return render_template('professions.tmpl', content_md=content_md, sidebar_md=sidebar_md)
-        
+
+    
 @application.route('/join/')
 def join():
     sidebar_md = render_dropbox_md("static/markdown/sidebar.md")
     return render_template('join.tmpl', sidebar_md=sidebar_md)
 
+    
 @application.route('/mumble.json')
 def local_mumble_json():
     mumble_json = requests.get("https://api.mumble.com/mumble/cvp.php?token=LSG-8A-A8183DEB").text
     return Response(mumble_json, mimetype='application/json')
 
 
+@application.route('/calendar/')
+def calendar():
+    sidebar_md = render_dropbox_md("static/markdown/sidebar.md")
+    return render_template('calendar.tmpl', sidebar_md=sidebar_md)
+
+    
 def get_google_json(speadsheet_url):
     r = requests.get(speadsheet_url)
     # strip the jsonp callback
@@ -96,6 +104,7 @@ def profession_json():
  
     return jsonify(table)
 
+
 @application.route('/assets.json')
 def assets_json():
     treasurey_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=0")
@@ -105,7 +114,7 @@ def assets_json():
 
     
 @application.route('/calendar.json')
-def calendar():
+def calendar_json():
     """
     >>> import feedparser
     >>> d = feedparser.parse('https://www.google.com/calendar/feeds/f0i8n739nted6nehflb0b9hreg%40group.calendar.google.com/public/basic')
