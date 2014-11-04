@@ -42,6 +42,10 @@ def professions(sort="by_name"):
 
     return render_template('professions.tmpl', content_md=content_md, sidebar_md=sidebar_md)
         
+@application.route('/join/')
+def join():
+    sidebar_md = render_dropbox_md("static/markdown/sidebar.md")
+    return render_template('join.tmpl', sidebar_md=sidebar_md)
 
 @application.route('/mumble.json')
 def local_mumble_json():
@@ -143,10 +147,15 @@ def calendar():
             date=date,
         ))
 
-    sorted_entries = sorted(d['entries'], key=lambda k: k['date'])
-    d['entries'] = sorted_entries
-    # TODO: check dates within range... today? this weekend?
-    d['next_events'] = sorted_entries[:2]
+    current_events = []
+    for event in d['entries']:
+        # drop past events older than 2 hours (CST = UTC-6)
+        if event['date'] > datetime.datetime.utcnow() - datetime.timedelta(hours=8):
+            current_events.append(event)
+            
+    sorted_events = sorted(current_events, key=lambda k: k['date'])
+    d['entries'] = sorted_events
+    d['next_events'] = sorted_events[:2]
 
     # aws flask version bug
     # return jsonify(d)
