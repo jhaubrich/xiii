@@ -109,7 +109,7 @@ def profession_json():
 def assets_json():
     treasurey_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=0")
     # resources_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=2041050771")
-    gold = treasurey_table['table']['rows'][0]['c'][3]['f'].replace('.', 'g ') + 's'
+    gold = treasurey_table['table']['rows'][0]['c'][3]['v'].replace('.', 'g ') + 's'
     return jsonify(dict(gold=gold, charcoal=0, crystal=0, rocksalt=0))
 
     
