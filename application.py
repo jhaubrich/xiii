@@ -108,8 +108,23 @@ def profession_json():
 @application.route('/assets.json')
 def assets_json():
     treasurey_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=0")
+    # gold = treasurey_table['table']['rows'][0]['c'][3]['v'].replace('.', 'g ') + 's' # google spredsheet render workaround
+    gold = treasurey_table['table']['rows'][0]['c'][2]['f'].replace('.', 'g ') + 's'
+
+    # charcoal doesn't show up in the json. It's set to None
+    # ...
+    #  u'table': {
+    #      u'rows': [{u'c': [None,
+    #                        None,
+    #                        {u'v': u'1'},
+    #                        {u'f': u'2', u'v': 2.0},
+    #                        {u'v': None}]},
+    #                {u'c': [None, None, {u'v': u'Type'}, None, {u'v': u'Comment'}]},
+    # ...
     # resources_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=2041050771")
-    gold = treasurey_table['table']['rows'][0]['c'][3]['v'].replace('.', 'g ') + 's'
+    # charcoal = resources_table['table']['rows'][0][0]['c'][1]
+    # crystal = resources_table['table']['rows'][0][0]['c'][2]
+    # rocksalt = resources_table['table']['rows'][0][0]['c'][3]
     return jsonify(dict(gold=gold, charcoal=0, crystal=0, rocksalt=0))
 
     
