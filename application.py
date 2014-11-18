@@ -108,8 +108,8 @@ def profession_json():
 @application.route('/assets.json')
 def assets_json():
     treasurey_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=0")
-    # gold = treasurey_table['table']['rows'][0]['c'][3]['v'].replace('.', 'g ') + 's' # google spredsheet render workaround
-    gold = treasurey_table['table']['rows'][0]['c'][2]['f'].replace('.', 'g ') + 's'
+    gold = treasurey_table['table']['rows'][0]['c'][3]['v'].replace('.', 'g ') + 's' # google spredsheet render workaround
+    # gold = treasurey_table['table']['rows'][0]['c'][2]['f'].replace('.', 'g ') + 's'
 
     # charcoal doesn't show up in the json. It's set to None
     # ...
@@ -150,12 +150,25 @@ def calendar_json():
     d = dict(updated=feed['updated'], entries=[])
     for entry in feed['entries']:
         content = entry['summary']
-        try:
+
+        # Parse Date
+        date = 0  # cause date parsing to fail hard
+        try: # Date range (time to time) event
             date_re = re.compile("When: (?P<date>.*) to")
             m = date_re.search(content)  # Wed Oct 29, 2014 9pm
             date = datetime.datetime.strptime(m.groupdict()['date'], "%a %b %d, %Y %I%p")
+        except: 
+            print(content)
+            print("date doesn't match: %a %b %d, %Y %I%p\n\n")
+        try:  # All day event
+            date_re = re.compile("When: (?P<date>.*)<")
+            m = date_re.search(content)  # Wed Oct 29, 2014 9pm
+            date = datetime.datetime.strptime(m.groupdict()['date'], "%a %b %d, %Y")
+            print(date)
         except:
-            date = 0
+            print(content)
+            print("date doesn't match: %a %b %d, %Y\n\n")
+
         content = content.replace('<br />', '', 1)
         content = content.replace('When: ', '')
         content = content.replace('Event Status: confirmed', '')
