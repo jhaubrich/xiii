@@ -108,7 +108,7 @@ def profession_json():
 @application.route('/assets.json')
 def assets_json():
     treasurey_table = get_google_json("https://docs.google.com/spreadsheets/d/1X9JMdmksP1QdThU_Hgvno9hJlUCtBp2Y568DwIrdhNw/gviz/tq?tq=select+*&gid=0")
-    gold = treasurey_table['table']['rows'][0]['c'][3]['v'] # google spredsheet render workaround
+    gold = treasurey_table['table']['rows'][0]['c'][3]['f'] # google spredsheet render workaround
     gold = gold[:-1].replace('.', 'g ') + 's'
     # gold = treasurey_table['table']['rows'][0]['c'][2]['f'].replace('.', 'g ') + 's'
 
