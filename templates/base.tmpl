@@ -71,6 +71,7 @@
         <ul class="left">
 	  <li><a href="/professions">Professions</a></li>
 	  <li><a href="/calendar">Calendar</a>
+	  <li><a href="https://muut.com/inoch13">Forums</a></li>
 	  <li><a href="/faq">FAQ</a></li>
 	  <li><a href="/join">Join Us!</a></li>
         </ul>
@@ -87,6 +88,9 @@
       <div id="content" class="medium-8 columns">{% block content %}{% endblock %}</div>
 
       <div id="sidebar" class="medium-4 columns">
+	<div id="motd-sidebar">
+	  <div id="motdTarget"></div> <!-- handlebars -->
+	</div>
 	<div id="calendar-sidebar">
 	  <div id="calendarTarget"></div> <!-- handlebars -->
 	</div>
@@ -137,6 +141,10 @@
       </ul>
     </script> {% endraw %}
 
+    <script id="motdTemplate" type="text/x-handlebars-template"> {% raw %}
+      <h5>{{text}}</h5>	<br />
+    </script> {% endraw %}
+
     
     <script>
      $(document).foundation()
@@ -166,6 +174,21 @@
 	 timeout: 30000,
 	 success: function(d){
 	   $('#assetsTarget').html(assetTemplate(d));
+	   /* console.log(d) */
+	   $(document).foundation();
+	 }
+       });
+     }();
+
+     var motdTemplate = Handlebars.compile(
+       $('#motdTemplate').html());
+     update_assets = function(){
+       $.ajax({
+	 url:"/motd.json",
+	 dataType: "json",
+	 timeout: 30000,
+	 success: function(d){
+	   $('#motdTarget').html(motdTemplate(d));
 	   /* console.log(d) */
 	   $(document).foundation();
 	 }

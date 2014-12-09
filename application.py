@@ -39,16 +39,15 @@ def faq():
 def professions(sort="by_name"):
     sidebar_md = render_dropbox_md("static/markdown/sidebar.md")
     content_md = render_dropbox_md("static/markdown/professions.md")
-
     return render_template('professions.tmpl', content_md=content_md, sidebar_md=sidebar_md)
 
-    
+ 
 @application.route('/join/')
 def join():
     sidebar_md = render_dropbox_md("static/markdown/sidebar.md")
     return render_template('join.tmpl', sidebar_md=sidebar_md)
 
-    
+ 
 @application.route('/mumble.json')
 def local_mumble_json():
     mumble_json = requests.get("https://api.mumble.com/mumble/cvp.php?token=LSG-8A-A8183DEB").text
@@ -69,8 +68,8 @@ def get_google_json(speadsheet_url):
     google_json = google_json.replace(google_jsonp['start'], '')
     google_json = google_json.replace(google_jsonp['end'], '')
     # remove bad date objects and unicode escape chars
-    google_json = google_json.replace('\\u0022', '').replace('\\u00', '').replace('new Date(', '"').replace('),"', '","')
-    table = json.loads(google_json)
+    google_json = google_json.replace('\\u0022', '').replace('\\u00', '').replace('new Date(', '"').replace('),"', '","')  # 
+    table = json.loads(google_json.decode('unicode_escape'))
     return table
     
 
@@ -128,6 +127,14 @@ def assets_json():
     return jsonify(dict(gold=gold, charcoal=0, crystal=0, rocksalt=0))
 
     
+@application.route('/motd.json')
+def motd_json():
+    motd = get_google_json("https://docs.google.com/spreadsheets/d/1GI73t_KnSWBKRp_QfmXeJKrtPwavYC5yFjNAphvge3c/gviz/tq?tq=select+*&gid=0")
+    return jsonify({'text': motd['table']['rows'][0]['c'][0]['v']})
+    # r = requests.get("https://docs.google.com/spreadsheets/d/1GI73t_KnSWBKRp_QfmXeJKrtPwavYC5yFjNAphvge3c/gviz/tq?tq=select+*&gid=0")
+    # return r.text.decode('unicode_escape')
+    
+    
 @application.route('/calendar.json')
 def calendar_json():
     """
@@ -158,7 +165,9 @@ def calendar_json():
             m = date_re.search(content)  # Wed Oct 29, 2014 9pm
             date = datetime.datetime.strptime(m.groupdict()['date'], "%a %b %d, %Y %I%p")
         except: 
+            pass
             print(content)
+            print("Not a date and time event")
             print("date doesn't match: %a %b %d, %Y %I%p\n\n")
         try:  # All day event
             date_re = re.compile("When: (?P<date>.*)<")
@@ -166,8 +175,19 @@ def calendar_json():
             date = datetime.datetime.strptime(m.groupdict()['date'], "%a %b %d, %Y")
             print(date)
         except:
+            pass
             print(content)
+            print("Not an all day event")
             print("date doesn't match: %a %b %d, %Y\n\n")
+        try:  # multi day event
+            date_re = re.compile("When: (?P<from_date>.*) to (?P<to_date>.*)&nbsp") # "When: Sun Dec 21, 2014 to Sat Jan 3, 2015&nbsp;"
+            m = date_re.search(content)
+            date = datetime.datetime.strptime(m.groupdict()['to_date'], "%a %b %d, %Y")
+        except:
+            print(content)
+            print("Not a multi-day event")
+            print("date doesn't match: %a %b %d, %Y to %a %b %d, %Y\n\n")
+            
 
         content = content.replace('<br />', '', 1)
         content = content.replace('When: ', '')
