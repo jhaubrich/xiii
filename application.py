@@ -172,7 +172,7 @@ def calendar_json():
         try:  # All day event
             date_re = re.compile("When: (?P<date>.*)<")
             m = date_re.search(content)  # Wed Oct 29, 2014 9pm
-            date = datetime.datetime.strptime(m.groupdict()['date'], "%a %b %d, %Y")
+            date = datetime.datetime.strptime(m.groupdict()['date'], "%a %b %d, %Y") + datetime.timedelta(days=1)
             print(date)
         except:
             pass
@@ -182,7 +182,7 @@ def calendar_json():
         try:  # multi day event
             date_re = re.compile("When: (?P<from_date>.*) to (?P<to_date>.*)&nbsp") # "When: Sun Dec 21, 2014 to Sat Jan 3, 2015&nbsp;"
             m = date_re.search(content)
-            date = datetime.datetime.strptime(m.groupdict()['to_date'], "%a %b %d, %Y")
+            date = datetime.datetime.strptime(m.groupdict()['to_date'], "%a %b %d, %Y") + datetime.timedelta(days=1)
         except:
             print(content)
             print("Not a multi-day event")
